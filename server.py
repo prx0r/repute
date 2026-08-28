@@ -1113,6 +1113,71 @@ def get_schema(product_type: str):
         raise HTTPException(404, f"Unknown type: {product_type}")
     return {"product_type": product_type, "schema": PRODUCT_SCHEMAS[product_type]}
 
+# === WorkRuns (Execution Traces) ===
+
+@app.post("/api/workruns")
+def create_workrun(req: dict):
+    """Create a WorkRun and automatically generate Product + Receipt + Capability.
+
+    This is the core integration point: get-me-money creates a WorkRun,
+    repute atomically creates all the downstream artifacts.
+    """
+    run_id = req.get("id", f"run-{uuid.uuid4().hex[:12]}")
+
+    # 1. Create receipt
+    receipt_result = create_receipt({
+        "agent_id": req.get("agent_id", ""),
+        "job_source": req.get("job_platform", ""),
+        "job_id": req.get("job_external_id", ""),
+        "capability": req.get("category", "general"),
+        "input_hash": hashlib.sha256(req.get("job_title", "").encode()).hexdigest()[:16],
+        "output_hash": run_id[-16:],
+        "output_preview": req.get("job_title", "")[:200],
+        "status": req.get("outcome", "completed"),
+        "amount_earned": req.get("reward_earned", 0.0),
+        "currency": "USDC",
+    })
+
+    # 2. Import product if artifact content exists
+    product_result = {"ok": False}
+    artifact_content = req.get("artifact_content", "")
+    if artifact_content and len(artifact_content) > 100:
+        product_result = import_work(ImportReq(
+            title=req.get("job_title", "Untitled Work"),
+            text=artifact_content,
+            worker_id=req.get("agent_id", ""),
+            source=req.get("job_platform", "external"),
+            source_job_id=req.get("job_external_id", ""),
+            category=req.get("category", "research"),
+            tags=req.get("tags", []),
+            price=0.0,
+            license="reuse permitted",
+        ))
+
+    # 3. Register capability
+    cap_result = {"ok": False}
+    if req.get("category"):
+        cap_result = create_capability({
+            "agent_id": req.get("agent_id", ""),
+            "name": req.get("category", "general"),
+            "description": f"Completed {req.get('category', '')} work: {req.get('job_title', '')}",
+        })
+
+    return {
+        "ok": True,
+        "run_id": run_id,
+        "receipt": receipt_result,
+        "product": product_result,
+        "capability": cap_result,
+    }
+
+@app.get("/api/workruns")
+def list_workruns(agent_id: str = "", limit: int = 25):
+    """List work runs for an agent."""
+    # Receipts ARE the work runs (they contain the trace)
+    result = list_receipts(agent_id=agent_id, limit=limit)
+    return {"workruns": result["receipts"], "count": result["count"]}
+
 # === Receipts (Proof of Work) ===
 
 @app.post("/api/receipts")
