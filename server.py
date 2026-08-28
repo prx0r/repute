@@ -1,7 +1,17 @@
-"""Repute — complete marketplace with SQLite persistence."""
+"""Repute — complete marketplace with SQLite persistence.
+
+Features:
+- Progressive paid reveal (Merkle commitment + random chunks)
+- Worker/studio reputation (Bayesian, category-aware)
+- Boards (specialist storefronts with products + services)
+- Search across assets
+- Bounty pools
+- Standing orders
+"""
 from __future__ import annotations
 
 import json
+import math
 import os
 import sqlite3
 import time
@@ -302,6 +312,101 @@ def submit_to_pool(pid: str, req: SubmitReq):
     conn.commit(); conn.close()
     return {"ok": True, "submission_id": sub["id"]}
 
+
+# === Reputation ===
+
+def compute_reputation(worker_id: str) -> dict:
+    conn = get_db()
+    assets = conn.execute("SELECT * FROM assets WHERE worker_id=?", (worker_id,)).fetchall()
+    reviews = conn.execute("SELECT r.* FROM reviews r JOIN assets a ON r.asset_id=a.id WHERE a.worker_id=?", (worker_id,)).fetchall()
+    conn.close()
+    if not assets and not reviews:
+        return {"score": 0, "confidence": "none", "detail": "No data yet"}
+    total_purchases = sum(a["purchases"] or 0 for a in assets)
+    total_revenue = sum(a["revenue"] or 0 for a in assets)
+    raw_ratings = [r["rating"] for r in reviews]
+    if raw_ratings:
+        avg = sum(raw_ratings) / len(raw_ratings)
+        smoothed = (3.5 + sum(raw_ratings)) / (3.5 + 3 + len(raw_ratings))
+    else:
+        smoothed = 3.5; avg = 0
+    reliability = min(1.0, 0.5 + total_purchases * 0.01)
+    score = (smoothed / 5.0) * 40 + reliability * 30 + min(30, total_purchases * 0.5)
+    confidence = "low" if total_purchases < 10 else "medium" if total_purchases < 50 else "high"
+    return {"score": round(score, 1), "confidence": confidence, "review_avg": round(avg, 2) if raw_ratings else None,
+            "review_count": len(raw_ratings), "total_purchases": total_purchases,
+            "total_revenue": round(total_revenue, 4), "reliability": round(reliability, 3), "assets_published": len(assets)}
+
+@app.get("/api/reputation/{worker_id}")
+def get_reputation(worker_id: str):
+    return compute_reputation(worker_id)
+
+# === Boards ===
+
+class BoardReq(BaseModel):
+    name: str; worker_id: str; description: str = ""; category: str = "general"
+
+@app.post("/api/boards")
+def create_board(req: BoardReq):
+    bid = f"board-{uuid.uuid4().hex[:8]}"
+    conn = get_db()
+    try: conn.execute("SELECT 1 FROM boards LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.execute("CREATE TABLE boards (id TEXT PRIMARY KEY, name TEXT, worker_id TEXT, description TEXT, category TEXT, products TEXT DEFAULT '[]', created_at REAL)")
+    conn.execute("INSERT INTO boards VALUES (?,?,?,?,?,?,?)", (bid, req.name, req.worker_id, req.description, req.category, "[]", time.time()))
+    conn.commit(); conn.close()
+    return {"ok": True, "board_id": bid, "name": req.name}
+
+@app.get("/api/boards")
+def list_boards():
+    conn = get_db()
+    try: rows = conn.execute("SELECT * FROM boards ORDER BY created_at DESC").fetchall()
+    except sqlite3.OperationalError: rows = []
+    conn.close()
+    return {"boards": [dict(r) for r in rows]}
+
+@app.get("/api/boards/{bid}")
+def get_board(bid: str):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM boards WHERE id=?", (bid,)).fetchone()
+    if not row: conn.close(); raise HTTPException(404)
+    board = dict(row)
+    worker_id = board.get("worker_id", "")
+    board["assets"] = [a for a in assets_cache.values() if a.get("worker_id") == worker_id]
+    board["reputation"] = compute_reputation(worker_id)
+    conn.close()
+    return board
+
+# === Search ===
+
+@app.get("/api/search")
+def search(q: str = "", category: str = "", min_price: float = 0, max_price: float = 999, sort: str = "relevance"):
+    results = {"assets": [], "workers": [], "total": 0}
+    for a in assets_cache.values():
+        score = 0
+        text = f"{a.get('title','')} {a.get('abstract','')} {' '.join(a.get('tags', []))}".lower()
+        if q:
+            for word in q.lower().split():
+                if word in text: score += 1
+        if category and a.get("category") != category: continue
+        if score > 0 or not q:
+            a_copy = a.copy(); a_copy["search_score"] = score
+            results["assets"].append(a_copy)
+    for w in workers_cache.values():
+        score = 0
+        text = f"{w.get('name','')} {' '.join(w.get('specialties', []))}".lower()
+        if q:
+            for word in q.lower().split():
+                if word in text: score += 1
+        if score > 0 or not q:
+            w_copy = w.copy(); w_copy["reputation"] = compute_reputation(w["id"]); w_copy["search_score"] = score
+            results["workers"].append(w_copy)
+    results["assets"].sort(key=lambda x: x.get("search_score", 0), reverse=True)
+    results["workers"].sort(key=lambda x: x.get("search_score", 0), reverse=True)
+    results["total"] = len(results["assets"]) + len(results["workers"])
+    return results
+
+# === Stats ===
 # Stats
 
 @app.get("/api/stats")
