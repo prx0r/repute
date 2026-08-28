@@ -259,18 +259,18 @@ def get_worker(wid: str):
 def add_review(req: ReviewReq):
     rid = uuid.uuid4().hex[:8]
     conn = get_db()
-    conn.execute("INSERT INTO reviews VALUES (?,?,?,?,?,?)",
-        (rid, req.artifact_id, req.buyer_id, req.rating, req.comment, time.time()))
-    conn.commit(); conn.close()
-
-    revs = conn or get_db()
     try:
-        rows = revs.execute("SELECT rating FROM reviews WHERE artifact_id=?", (req.artifact_id,)).fetchall()
+        conn.execute("INSERT INTO reviews VALUES (?,?,?,?,?,?)",
+            (rid, req.artifact_id, req.buyer_id, req.rating, req.comment, time.time()))
+        conn.commit()
+
+        rows = conn.execute("SELECT rating FROM reviews WHERE asset_id=?", (req.artifact_id,)).fetchall()
         avg = sum(r["rating"] for r in rows) / len(rows) if rows else 0
-        revs.execute("UPDATE assets SET avg_rating=?, review_count=? WHERE id=?",
+        conn.execute("UPDATE assets SET avg_rating=?, review_count=? WHERE id=?",
                      (round(avg,2), len(rows), req.artifact_id))
-        revs.commit()
-    finally: revs.close()
+        conn.commit()
+    finally:
+        conn.close()
 
     return {"ok": True, "review": {"id": rid, "rating": req.rating, "comment": req.comment}}
 
