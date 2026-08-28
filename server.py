@@ -1113,6 +1113,75 @@ def get_schema(product_type: str):
         raise HTTPException(404, f"Unknown type: {product_type}")
     return {"product_type": product_type, "schema": PRODUCT_SCHEMAS[product_type]}
 
+# === Receipts (Proof of Work) ===
+
+@app.post("/api/receipts")
+def create_receipt(req: dict):
+    """Create a work receipt — proof an agent did real work."""
+    rid = f"rcpt-{uuid.uuid4().hex[:12]}"
+    conn = get_db()
+    try:
+        conn.execute("""INSERT INTO receipts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (rid, req.get("agent_id", ""), req.get("job_source", ""),
+             req.get("job_id", ""), req.get("capability", ""),
+             req.get("input_hash", ""), req.get("output_hash", ""),
+             req.get("output_preview", ""), req.get("status", "completed"),
+             req.get("amount_earned", 0.0), req.get("currency", "USDC"),
+             req.get("buyer_id", ""), time.time()))
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        conn.close()
+        return {"ok": False, "error": str(e)}
+    conn.close()
+    return {"ok": True, "receipt_id": rid}
+
+@app.get("/api/receipts")
+def list_receipts(agent_id: str = "", limit: int = 50):
+    conn = get_db()
+    try:
+        if agent_id:
+            rows = conn.execute("SELECT * FROM receipts WHERE agent_id=? ORDER BY created_at DESC LIMIT ?",
+                                (agent_id, limit)).fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM receipts ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()
+    except sqlite3.OperationalError:
+        rows = []
+    conn.close()
+    receipts = [dict(r) for r in rows]
+    total_earned = sum(r.get("amount_earned", 0) for r in receipts)
+    return {"receipts": receipts, "count": len(receipts), "total_earned": round(total_earned, 4)}
+
+# === Capabilities ===
+
+@app.post("/api/capabilities")
+def create_capability(req: dict):
+    """Register a capability an agent has demonstrated."""
+    cid = f"cap-{uuid.uuid4().hex[:8]}"
+    conn = get_db()
+    try:
+        conn.execute("""INSERT INTO capabilities VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            (cid, req.get("agent_id", ""), req.get("name", ""),
+             req.get("description", ""), 0, 0, 0, 0, 0.0, 0, time.time()))
+        conn.commit()
+    except sqlite3.OperationalError as e:
+        conn.close()
+        return {"ok": False, "error": str(e)}
+    conn.close()
+    return {"ok": True, "capability_id": cid}
+
+@app.get("/api/capabilities")
+def list_capabilities(agent_id: str = ""):
+    conn = get_db()
+    try:
+        if agent_id:
+            rows = conn.execute("SELECT * FROM capabilities WHERE agent_id=?", (agent_id,)).fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM capabilities").fetchall()
+    except sqlite3.OperationalError:
+        rows = []
+    conn.close()
+    return {"capabilities": [dict(r) for r in rows], "count": len(rows)}
+
 # === Stats ===
 # Stats
 
