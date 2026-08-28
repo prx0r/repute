@@ -35,39 +35,79 @@ def sha256_hex(data: bytes) -> str:
 
 # === Chunking ===
 
-def chunk_text(text: str, target_chunks: int = 10) -> list[str]:
+def chunk_text(text: str, target_chunks: int = 10, min_chunk_size: int = 80) -> list[str]:
     """Split text into coherent chunks.
 
     Strategy: split into sentences, then distribute into target_chunks groups
-    of roughly equal size. Always produces at least 2 chunks.
+    of roughly equal size. Always produces at least 2 chunks for texts > min_chunk_size.
+    For short texts, falls back to character-level splitting to ensure enough chunks
+    for meaningful progressive reveal.
+
+    Args:
+        text: the input text
+        target_chunks: desired number of chunks
+        min_chunk_size: minimum characters per chunk (prevents tiny useless chunks)
     """
     text = text.strip()
     if not text:
         return [""]
 
+    # For very short texts, return as-is (no useful way to split)
+    if len(text) < min_chunk_size:
+        return [text] if text else [""]
+
     # Split into sentences
     sentences = re.split(r'(?<=[.!?])\s+', text)
     sentences = [s.strip() for s in sentences if s.strip()]
 
-    if len(sentences) <= target_chunks:
-        # Fewer sentences than target chunks — use sentences as chunks
-        return sentences if len(sentences) > 1 else [text]
+    if len(sentences) <= 1:
+        # No sentence boundaries — split by paragraph or commas
+        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+        if len(paragraphs) > 1:
+            sentences = paragraphs
+        else:
+            # Split by commas/semicolons as last resort
+            parts = re.split(r'[,;]\s*', text)
+            sentences = [s.strip() for s in parts if len(s.strip()) > 20]
+
+    if len(sentences) <= 1:
+        # Still no split points — character-level split for long texts
+        if len(text) > target_chunks * min_chunk_size:
+            chunk_len = max(min_chunk_size, len(text) // target_chunks)
+            chunks = []
+            for i in range(0, len(text), chunk_len):
+                chunk = text[i:i + chunk_len].strip()
+                if chunk:
+                    chunks.append(chunk)
+            return chunks if len(chunks) >= 2 else [text]
+        return [text]
 
     # Distribute sentences into target_chunks groups
-    chunk_size = max(1, len(sentences) // target_chunks)
+    if len(sentences) >= target_chunks:
+        chunk_size = max(1, len(sentences) // target_chunks)
+    else:
+        # Fewer sentences than target — each sentence is a chunk
+        return sentences
+
     chunks = []
     for i in range(0, len(sentences), chunk_size):
         chunk = " ".join(sentences[i:i + chunk_size])
         if chunk.strip():
             chunks.append(chunk.strip())
 
-    # Ensure at least 2 chunks
-    if len(chunks) == 1 and len(text) > 200:
+    # Merge tiny trailing chunks
+    if len(chunks) > 2 and len(chunks[-1]) < min_chunk_size:
+        chunks[-2] = chunks[-2] + " " + chunks[-1]
+        chunks.pop()
+
+    # Ensure at least 2 chunks for texts long enough to split
+    if len(chunks) == 1 and len(text) > min_chunk_size * 2:
         mid = len(text) // 2
-        # Find nearest sentence boundary
         boundary = text.rfind('. ', 0, mid)
         if boundary < mid // 2:
             boundary = text.find('. ', mid)
+        if boundary < mid // 3:
+            boundary = mid  # just split in half
         if boundary > 0:
             chunks = [text[:boundary + 1].strip(), text[boundary + 1:].strip()]
 
