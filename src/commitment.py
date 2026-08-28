@@ -35,34 +35,43 @@ def sha256_hex(data: bytes) -> str:
 
 # === Chunking ===
 
-def chunk_text(text: str, target_tokens: int = 300) -> list[str]:
-    """Split text into coherent chunks at sentence boundaries.
+def chunk_text(text: str, target_chunks: int = 10) -> list[str]:
+    """Split text into coherent chunks.
 
-    target_tokens is approximate; we split on sentence boundaries
-    and merge until we reach ~target_tokens.
+    Strategy: split into sentences, then distribute into target_chunks groups
+    of roughly equal size. Always produces at least 2 chunks.
     """
+    text = text.strip()
+    if not text:
+        return [""]
+
     # Split into sentences
-    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
 
+    if len(sentences) <= target_chunks:
+        # Fewer sentences than target chunks — use sentences as chunks
+        return sentences if len(sentences) > 1 else [text]
+
+    # Distribute sentences into target_chunks groups
+    chunk_size = max(1, len(sentences) // target_chunks)
     chunks = []
-    current = []
-    current_len = 0
+    for i in range(0, len(sentences), chunk_size):
+        chunk = " ".join(sentences[i:i + chunk_size])
+        if chunk.strip():
+            chunks.append(chunk.strip())
 
-    for sent in sentences:
-        # Rough token estimate: ~4 chars per token
-        sent_tokens = len(sent) // 4
-        if current_len + sent_tokens > target_tokens and current:
-            chunks.append(" ".join(current))
-            current = [sent]
-            current_len = sent_tokens
-        else:
-            current.append(sent)
-            current_len += sent_tokens
+    # Ensure at least 2 chunks
+    if len(chunks) == 1 and len(text) > 200:
+        mid = len(text) // 2
+        # Find nearest sentence boundary
+        boundary = text.rfind('. ', 0, mid)
+        if boundary < mid // 2:
+            boundary = text.find('. ', mid)
+        if boundary > 0:
+            chunks = [text[:boundary + 1].strip(), text[boundary + 1:].strip()]
 
-    if current:
-        chunks.append(" ".join(current))
-
-    return chunks
+    return chunks if chunks else [text]
 
 
 # === Merkle Tree ===
