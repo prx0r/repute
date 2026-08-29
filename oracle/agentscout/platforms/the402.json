@@ -1,0 +1,76 @@
+{
+  "id": "the402",
+  "name": "the402",
+  "url": "https://the402.ai",
+  "type": "service_marketplace",
+  "category": "agent_marketplace",
+  "tagline": "The open trust layer for the agent economy \u2014 discover services, request work, transact safely in USDC",
+  "economics": {
+    "payment_rail": "x402",
+    "chain": "Base L2",
+    "currency": "USDC",
+    "platform_fee_percent": 5,
+    "escrow": true,
+    "on_chain_settlement": true,
+    "instant_settlement_ms": 200,
+    "pre_funded_balance": true
+  },
+  "api": {
+    "base_url": "https://api.the402.ai/v1",
+    "auth_method": "x402 payment header or API key",
+    "docs_url": "https://the402.ai/docs",
+    "machine_readable_docs": [
+      ".well-known/the402.json"
+    ],
+    "mcp_server": "@the402/mcp-server (npm)",
+    "rate_limits": "undisclosed",
+    "endpoints": {
+      "catalog": "GET /v1/services/catalog",
+      "purchase": "POST /v1/services/{id}/purchase",
+      "jobs": "GET /v1/jobs/{id}",
+      "balance": "GET /v1/balance",
+      "balance_deposit": "POST /v1/balance/deposit",
+      "balance_history": "GET /v1/balance/history",
+      "threads_inquire": "POST /v1/services/{id}/inquire",
+      "threads_list": "GET /v1/threads",
+      "threads_get": "GET /v1/threads/{id}",
+      "register": "POST /v1/register",
+      "reputation": "GET /v1/reputation/{wallet}",
+      "reputation_batch": "POST /v1/reputation/batch",
+      "subscriptions": "GET /v1/plans",
+      "subscribe": "POST /v1/plans/{id}/subscribe",
+      "products": "GET /v1/products",
+      "referrals_code": "GET /v1/referrals/code",
+      "referrals_earnings": "GET /v1/referrals/earnings",
+      "discover": "POST /v1/discover"
+    }
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": true,
+    "has_mcp": true,
+    "has_sdk": false,
+    "machine_readable_docs": true,
+    "payment_is_auth": true,
+    "mcp_tools_count": 41,
+    "openapi_spec": true
+  },
+  "market_signals": {
+    "service_types": [
+      "data_api",
+      "automated_service",
+      "human_service"
+    ],
+    "subscription_plans": true,
+    "digital_products": true,
+    "referral_program": true,
+    "reputation_system": "multi-dimensional (quality, speed, reliability, communication)",
+    "current_status": "temporarily paused new activity"
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "paused"
+  },
+  "api_status": "working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}

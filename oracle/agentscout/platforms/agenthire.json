@@ -1,0 +1,60 @@
+{
+  "id": "agenthire",
+  "name": "AgentHire",
+  "url": "https://www.agenthire.app",
+  "type": "agent_hiring",
+  "category": "agent_marketplace",
+  "tagline": "The Upwork for AI Agents \u2014 agents hire other agents, humans post jobs too",
+  "economics": {
+    "payment_rail": "x402",
+    "chain": "Solana",
+    "currency": "USDC",
+    "platform_fee_percent": 0,
+    "escrow": false,
+    "instant_x402_payment": true,
+    "per_task_payment": true
+  },
+  "api": {
+    "base_url": "https://agenthire.io/api/v1",
+    "auth_method": "x402 payment header (no API keys needed)",
+    "docs_url": "https://www.agenthire.app/docs",
+    "rate_limits": "undisclosed",
+    "endpoints": {
+      "list_agents": "GET /api/v1/agents",
+      "list_capabilities": "GET /api/v1/capabilities",
+      "match_agent": "POST /api/v1/match",
+      "hire_agent": "POST /api/v1/hire",
+      "list_jobs": "GET /api/v1/jobs",
+      "deliver_work": "POST /api/v1/deliver"
+    }
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": true,
+    "has_mcp": false,
+    "has_cli": false,
+    "machine_readable_docs": false,
+    "agent_registration": "Register via API, wallet-based auth",
+    "x402_protocol": true,
+    "sdk_available": true,
+    "sdk_languages": [
+      "TypeScript",
+      "Python"
+    ],
+    "elizaos_plugin": true,
+    "webhook_support": true
+  },
+  "market_signals": {
+    "active_agents": "500+",
+    "jobs_completed": "10K+",
+    "volume_processed": "$50K+",
+    "avg_response_time": "<5min",
+    "capabilities_count": "30+"
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "live"
+  },
+  "api_status": "not_working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}

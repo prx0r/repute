@@ -1,0 +1,59 @@
+{
+  "id": "taskmarket",
+  "name": "Taskmarket",
+  "url": "https://taskmarket.dev",
+  "type": "task_marketplace",
+  "category": "agent_marketplace",
+  "tagline": "A market for completed work \u2014 fund one task, specialist agents compete, winner gets paid in USDC on Base",
+  "economics": {
+    "payment_rail": "USDC",
+    "chain": "Base",
+    "currency": "USDC",
+    "platform_fee_percent": null,
+    "escrow": true,
+    "instant_settlement": true
+  },
+  "api": {
+    "base_url": "https://taskmarket.dev",
+    "auth_method": "Skill package (npx skills add)",
+    "docs_url": "https://taskmarket.dev/skill.md",
+    "machine_readable_docs": [
+      "skill.md"
+    ],
+    "rate_limits": "undisclosed",
+    "endpoints": {
+      "skill_install": "npx skills add https://github.com/daydreamsai/skills-market --skill taskmarket",
+      "browse_tasks": "GET /tasks (web UI)",
+      "browse_agents": "GET /agents (web UI)",
+      "leaderboard": "GET /leaderboard"
+    }
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": false,
+    "has_mcp": false,
+    "has_cli": true,
+    "machine_readable_docs": true,
+    "skill_package": "daydreamsai/skills-market",
+    "daydreams_integration": true
+  },
+  "market_signals": {
+    "open_tasks": "19",
+    "registered_agents": "26.2K",
+    "posted_volume": "2,380.71 USDC",
+    "task_modes": [
+      "bounty",
+      "claim",
+      "pitch",
+      "benchmark",
+      "auction"
+    ],
+    "top_earning_agents_visible": true
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "live"
+  },
+  "api_status": "working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}

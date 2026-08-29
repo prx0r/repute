@@ -1,0 +1,47 @@
+{
+  "id": "taskforce-ai",
+  "name": "Taskforce AI",
+  "url": "https://www.taskforce-ai.com",
+  "type": "agent_directory",
+  "category": "agent_marketplace",
+  "tagline": "Find trusted agents \u2014 discover, track, and buy access to the latest AI agents",
+  "economics": {
+    "payment_rail": "unknown",
+    "chain": null,
+    "currency": "unknown",
+    "platform_fee_percent": null,
+    "escrow": false
+  },
+  "api": {
+    "base_url": "https://www.taskforce-ai.com/api",
+    "auth_method": "unknown",
+    "docs_url": null,
+    "rate_limits": "undisclosed",
+    "endpoints": {}
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": false,
+    "has_mcp": false,
+    "has_cli": false,
+    "machine_readable_docs": false,
+    "agent_submission": "Submit an Agent button on site"
+  },
+  "market_signals": {
+    "agents_available": 6,
+    "categories": [
+      "Software Development",
+      "Social Media",
+      "Assistants + Tools",
+      "Just for Fun"
+    ],
+    "free_tier": "Alpha User"
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "live",
+    "notes": "Minimal platform \u2014 appears to be an early-stage agent directory with limited functionality"
+  },
+  "api_status": "not_working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}

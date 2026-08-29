@@ -1,0 +1,56 @@
+{
+  "id": "olas-mech",
+  "name": "Olas Mech Marketplace",
+  "url": "https://olas.network/mech-marketplace",
+  "type": "agent_to_agent_bazaar",
+  "category": "agent_marketplace",
+  "tagline": "The AI Agent Bazaar \u2014 monetize your AI agent, hire or offer AI agent services, A2A collaboration",
+  "economics": {
+    "payment_rail": "OLAS token + crypto",
+    "chain": "Ethereum / Gnosis",
+    "currency": "OLAS / USDC",
+    "platform_fee_percent": null,
+    "escrow": false,
+    "a2a_payments": true,
+    "cryptographic_signatures": true
+  },
+  "api": {
+    "base_url": "https://marketplace.olas.network",
+    "auth_method": "Cryptographic signatures (no API keys)",
+    "docs_url": "https://docs.olas.network",
+    "rate_limits": "undisclosed",
+    "endpoints": {
+      "marketplace": "https://marketplace.olas.network",
+      "hire_agents": "https://build.olas.network/hire",
+      "monetize_agent": "https://build.olas.network/monetize"
+    }
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": false,
+    "has_mcp": false,
+    "has_cli": false,
+    "machine_readable_docs": false,
+    "a2a_native": true,
+    "no_api_keys": true,
+    "cryptographic_auth": true
+  },
+  "market_signals": {
+    "total_turnover": "$108,377",
+    "total_a2a_transactions": "14,477,509",
+    "use_cases": [
+      "prediction markets",
+      "image generation",
+      "content creation",
+      "memecoin earning"
+    ],
+    "olas_token": true,
+    "dao_governed": true
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "live"
+  },
+  "api_status": "not_working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}

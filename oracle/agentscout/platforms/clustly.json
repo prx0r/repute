@@ -1,0 +1,71 @@
+{
+  "id": "clustly",
+  "name": "Clustly",
+  "url": "https://clustly.ai",
+  "type": "agent_marketplace",
+  "category": "agent_marketplace",
+  "tagline": "The execution network for the agent economy \u2014 delegate the work, keep the judgement",
+  "economics": {
+    "payment_rail": "USDC on Solana",
+    "chain": "Solana",
+    "currency": "USDC",
+    "platform_fee_percent": 4,
+    "escrow": true,
+    "on_chain_escrow": true,
+    "auto_approve_days": 14
+  },
+  "api": {
+    "base_url": "https://clustly.ai/api",
+    "auth_method": "API key (clk_ prefix)",
+    "docs_url": "https://clustly.ai/docs",
+    "machine_readable_docs": true,
+    "mcp_server": "@clustly/agent (npm)",
+    "rate_limits": "undisclosed",
+    "endpoints": {
+      "list_orders": "clustly_list_jobs (MCP)",
+      "accept_order": "clustly_accept (MCP)",
+      "submit_work": "clustly_submit (MCP)",
+      "draft_listing": "clustly_draft_listing (MCP)",
+      "list_browse": "GET /browse",
+      "register_operator": "POST /operator/register",
+      "order_detail": "GET /v1/orders/{id}",
+      "submit_content": "POST /v1/orders/{id}/submit",
+      "approve_order": "POST /v1/orders/{id}/approve",
+      "dispute": "POST /v1/orders/{id}/dispute"
+    }
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": true,
+    "has_mcp": true,
+    "has_sdk": true,
+    "machine_readable_docs": true,
+    "agent_quickstart": "MCP config one-liner with clk_ key",
+    "poll_first_daemon": true,
+    "library_mode": true,
+    "webhook_push": "WIP"
+  },
+  "market_signals": {
+    "products": [
+      "GenOS (AI employees)",
+      "Agents Router",
+      "Tipping (live on pay.sh)",
+      "Marketplace"
+    ],
+    "escrow_program": "clustly-escrow (Solana)",
+    "advisory_verifier": "Gemini-based",
+    "managed_agents": true,
+    "solana_foundation_partner": true,
+    "integrations": [
+      "OpenAI",
+      "Anthropic",
+      "OpenClaw"
+    ]
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "live"
+  },
+  "api_status": "not_working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}

@@ -1,0 +1,91 @@
+{
+  "id": "rentahuman",
+  "name": "RentAHuman",
+  "url": "https://rentahuman.ai",
+  "type": "physical_task_marketplace",
+  "category": "agent_marketplace",
+  "tagline": "The meatspace layer for AI \u2014 hire humans for physical-world tasks when your AI can't touch grass",
+  "economics": {
+    "payment_rail": [
+      "Stripe",
+      "x402 crypto"
+    ],
+    "chain": "Base",
+    "currency": [
+      "USD",
+      "USDC"
+    ],
+    "platform_fee_percent": null,
+    "escrow": true,
+    "funds_held_until_completion": true
+  },
+  "api": {
+    "base_url": "https://rentahuman.ai/api",
+    "auth_method": "X-API-Key or Bearer token",
+    "docs_url": "https://rentahuman.ai/docs",
+    "machine_readable_docs": true,
+    "mcp_server": "npx rentahuman-mcp",
+    "rate_limits": "undisclosed",
+    "endpoints": {
+      "search_humans": "GET /api/humans",
+      "get_human": "GET /api/humans/{id}",
+      "start_conversation": "POST /api/conversations",
+      "send_message": "POST /api/conversations/{id}/messages",
+      "list_conversations": "GET /api/conversations",
+      "create_bounty": "POST /api/bounties",
+      "list_bounties": "GET /api/bounties",
+      "get_bounty": "GET /api/bounties/{id}",
+      "accept_application": "POST /api/bounties/{id}/applications/{appId}/accept",
+      "browse_services": "GET /api/services",
+      "book_service": "POST /api/services/{id}/book",
+      "rent_human": "POST /api/rentals",
+      "create_escrow": "POST /api/escrows",
+      "confirm_delivery": "POST /api/escrows/{id}/confirm",
+      "release_payment": "POST /api/escrows/{id}/release",
+      "upload": "POST /api/upload",
+      "webhooks": "POST /api/webhooks"
+    }
+  },
+  "agent_friendliness": {
+    "welcomes_agents": true,
+    "has_api": true,
+    "has_mcp": true,
+    "has_cli": false,
+    "machine_readable_docs": true,
+    "agent_setup_guide": "/for-agents",
+    "mcp_tools": "Full catalog: search, bounty, escrow, conversation, services, wallet, QA runs",
+    "x402_signup": true
+  },
+  "market_signals": {
+    "registered_humans": "787,455+",
+    "countries": "100+",
+    "featured_in": [
+      "WIRED",
+      "Forbes",
+      "Nature",
+      "Mashable",
+      "Futurism"
+    ],
+    "task_categories": [
+      "store_audits",
+      "events",
+      "product_testing",
+      "street_signs",
+      "social_media",
+      "reviews",
+      "reddit",
+      "ugc",
+      "security",
+      "data",
+      "errands"
+    ],
+    "qa_runs": true,
+    "taste_runs": true
+  },
+  "metadata": {
+    "crawled_at": "2026-08-28",
+    "status": "live"
+  },
+  "api_status": "not_working",
+  "tested_at": "2026-08-28T14:00:00Z"
+}
